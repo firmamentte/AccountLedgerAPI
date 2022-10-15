@@ -1,6 +1,7 @@
 ﻿using AccountLedgerAPI.BLL.DataContract;
 using AccountLedgerAPI.Data.DALClasses;
 using AccountLedgerAPI.Data.Entities;
+using System.Collections.Generic;
 
 namespace AccountLedgerAPI.BLL.BLLClasses
 {
@@ -33,6 +34,20 @@ namespace AccountLedgerAPI.BLL.BLLClasses
             return FillApplicationUserAccountResp(_applicationUserAccount);
         }
 
+        public async Task<List<ApplicationUserAccountResp>> GetApplicationUserAccountsByCriteria(string? accountNumber, string? accountName)
+        {
+            using AccountLedgerContext _dbContext = new();
+
+            List<ApplicationUserAccountResp> applicationUserAccountResps = new();
+
+            foreach (var item in await ApplicationUserAccountDAL.GetApplicationUserAccountsByCriteria(_dbContext, accountNumber, accountName))
+            {
+                applicationUserAccountResps.Add(FillApplicationUserAccountResp(item));
+            }
+
+            return applicationUserAccountResps;
+        }
+
         private async Task<string> CreateAccountNumber(AccountLedgerContext _dbContext)
         {
             Random _random = new();
@@ -53,6 +68,7 @@ namespace AccountLedgerAPI.BLL.BLLClasses
             {
                 AccountName = _applicationUserAccount.AccountName,
                 AccountNumber = _applicationUserAccount.AccountNumber,
+                AccountBalance = _applicationUserAccount.AccountBalance,
                 CreationDate = _applicationUserAccount.CreationDate
             };
         }

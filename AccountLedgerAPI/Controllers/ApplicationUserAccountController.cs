@@ -22,7 +22,7 @@ namespace AccountLedgerAPI.Controllers
 
         [Route("V1/CreateApplicationUserAccount")]
         [HttpPost]
-        public async Task<ActionResult> CreateApplicationUserAccount(CreateApplicationUserAccountReq createApplicationUserAccountReq)
+        public async Task<ActionResult> CreateApplicationUserAccount([FromBody] CreateApplicationUserAccountReq createApplicationUserAccountReq)
         {
             #region RequestValidation
 
@@ -41,6 +41,17 @@ namespace AccountLedgerAPI.Controllers
             #endregion
 
             return Ok(await ApplicationUserAccountBLL.CreateApplicationUserAccount(SharedHelper.GetHeaderAccessToken(Request), createApplicationUserAccountReq));
+        }
+
+        [Route("V1/GetApplicationUserAccountsByCriteria")]
+        [HttpGet]
+        public async Task<ActionResult> GetApplicationUserAccountsByCriteria([FromQuery] string? accountNumber, [FromQuery] string? accountName)
+        {
+            #region RequestValidation
+
+            #endregion
+
+            return Ok(await ApplicationUserAccountBLL.GetApplicationUserAccountsByCriteria(accountNumber, accountName));
         }
     }
 }

@@ -21,5 +21,17 @@ namespace AccountLedgerAPI.Data.DALClasses
                           select applicationUserAccount).
                           AnyAsync();
         }
+
+        public async Task<List<ApplicationUserAccount>> GetApplicationUserAccountsByCriteria(AccountLedgerContext dbContext, string? accountNumber, string? accountName)
+        {
+            accountNumber ??= string.Empty;
+            accountName ??= string.Empty;
+
+            return await (from applicationUserAccount in dbContext.ApplicationUserAccounts
+                          where applicationUserAccount.AccountNumber.Contains(accountNumber) &&
+                                applicationUserAccount.AccountName.Contains(accountName)
+                          select applicationUserAccount).
+                          ToListAsync();
+        }
     }
 }
