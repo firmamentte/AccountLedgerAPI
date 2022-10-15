@@ -62,14 +62,14 @@ namespace AccountLedgerAPI.BLL.BLLClasses
             return _accountNumber;
         }
 
-        private ApplicationUserAccountResp FillApplicationUserAccountResp(ApplicationUserAccount _applicationUserAccount)
+        private ApplicationUserAccountResp FillApplicationUserAccountResp(ApplicationUserAccount applicationUserAccount)
         {
             return new ApplicationUserAccountResp()
             {
-                AccountName = _applicationUserAccount.AccountName,
-                AccountNumber = _applicationUserAccount.AccountNumber,
-                AccountBalance = _applicationUserAccount.AccountBalance,
-                CreationDate = _applicationUserAccount.CreationDate
+                AccountName = applicationUserAccount.AccountName,
+                AccountNumber = applicationUserAccount.AccountNumber,
+                AccountBalance = applicationUserAccount.AccountBalance,
+                CreationDate = applicationUserAccount.CreationDate
             };
         }
     }

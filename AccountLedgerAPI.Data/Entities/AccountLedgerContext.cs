@@ -156,6 +156,10 @@ namespace AccountLedgerAPI.Data.Entities
 
                 entity.Property(e => e.TransactionDate).HasColumnType("datetime");
 
+                entity.Property(e => e.TransactionName)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
                 entity.HasOne(d => d.ApplicationUserAccount)
                     .WithMany(p => p.Transactions)
                     .HasForeignKey(d => d.ApplicationUserAccountId)
