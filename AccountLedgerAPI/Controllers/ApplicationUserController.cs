@@ -1,6 +1,7 @@
 using AccountLedgerAPI.BLL.BLLClasses;
 using AccountLedgerAPI.BLL.DataContract;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using System.Net;
 
 namespace AccountLedgerAPI.Controllers
@@ -109,6 +110,34 @@ namespace AccountLedgerAPI.Controllers
             Response.Headers.Add("ApplicationUserCode", await ApplicationUserBLL.Register(registerReq));
 
             return StatusCode((int)HttpStatusCode.Created);
+        }
+
+        [Route("V1/Authenticate")]
+        [HttpPost]
+        public async Task<ActionResult> Authenticate()
+        {
+            #region RequestValidation
+
+            ModelState.Clear();
+
+            if (!Request.Headers.TryGetValue("ApplicationUserCode", out StringValues _applicationUserCode))
+            {
+                ModelState.AddModelError("ApplicationUserCode", "Application User Code required");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ApiErrorResp(ModelState));
+            }
+
+            #endregion
+
+            AuthenticateResp _authenticateResp = await ApplicationUserBLL.Authenticate(_applicationUserCode);
+
+            Response.Headers.Add("AccessToken", _authenticateResp.AccessToken);
+            Response.Headers.Add("AccessTokenExpiryDate", _authenticateResp.ExpiryDate.ToString());
+
+            return Ok();
         }
     }
 }
