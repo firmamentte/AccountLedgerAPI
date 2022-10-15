@@ -12,5 +12,21 @@ namespace AccountLedgerAPI.Data.DALClasses
                           select applicationUser).
                           FirstOrDefaultAsync();
         }
+
+        public async Task<ApplicationUser> GetApplicationUserByAccessToken(AccountLedgerContext dbContext, string accessToken)
+        {
+            return await (from applicationUser in dbContext.ApplicationUsers
+                          where applicationUser.AccessToken == accessToken
+                          select applicationUser).
+                          FirstOrDefaultAsync();
+        }
+        public async Task<bool> IsAccessTokenValid(AccountLedgerContext dbContext, string accessToken)
+        {
+            return await (from applicationUser in dbContext.ApplicationUsers
+                          where applicationUser.AccessToken == accessToken &&
+                                applicationUser.AccessTokenExpiryDate >= DateTime.Now.Date
+                          select applicationUser).
+                          AnyAsync();
+        }
     }
 }

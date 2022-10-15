@@ -64,6 +64,13 @@ namespace AccountLedgerAPI.BLL.BLLClasses
             return FillAuthenticateResp(_applicationUser.AccessToken, (DateTime)_applicationUser.AccessTokenExpiryDate);
         }
 
+        public async Task<bool> IsAccessTokenValid(string accessToken)
+        {
+            using AccountLedgerContext _dbContext = new();
+
+            return await ApplicationUserDAL.IsAccessTokenValid(_dbContext, accessToken);
+        }
+
         private string CreateAccessToken()
         {
             return $"{Guid.NewGuid().ToString().Replace("-", "")}{Guid.NewGuid().ToString().Replace("-", "")}{Guid.NewGuid().ToString().Replace("-", "")}{Guid.NewGuid().ToString().Replace("-", "")}{Guid.NewGuid().ToString().Replace("-", "")}{Guid.NewGuid().ToString().Replace("-", "")}";
