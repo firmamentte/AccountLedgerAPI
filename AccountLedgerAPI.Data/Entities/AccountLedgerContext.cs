@@ -152,6 +152,8 @@ namespace AccountLedgerAPI.Data.Entities
 
                 entity.Property(e => e.TransactionId).HasDefaultValueSql("(newid())");
 
+                entity.Property(e => e.DeletionDate).HasColumnType("datetime");
+
                 entity.Property(e => e.TransactionAmount).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.TransactionDate).HasColumnType("datetime");

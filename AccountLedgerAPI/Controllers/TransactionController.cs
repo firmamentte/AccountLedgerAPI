@@ -90,5 +90,30 @@ namespace AccountLedgerAPI.Controllers
 
             return Ok(await TransactionBLL.CreateTransaction(createTransactionReq));
         }
+
+        [Route("V1/DeleteTransaction")]
+        [HttpDelete]
+        public async Task<ActionResult> DeleteTransaction([FromBody] DeleteTransactionReq deleteTransactionReq)
+        {
+            #region RequestValidation
+
+            ModelState.Clear();
+
+            if (deleteTransactionReq.TransactionId == Guid.Empty)
+            {
+                ModelState.AddModelError("TransactionId", "Transaction Id required");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ApiErrorResp(ModelState));
+            }
+
+            #endregion
+
+            await TransactionBLL.DeleteTransaction(deleteTransactionReq);
+
+            return Ok();
+        }
     }
 }

@@ -12,6 +12,7 @@ namespace AccountLedgerAPI.Data.Entities
         public decimal TransactionAmount { get; set; }
         public DateTime TransactionDate { get; set; }
         public long TransactionTicks { get; set; }
+        public DateTime DeletionDate { get; set; }
 
         public virtual ApplicationUserAccount ApplicationUserAccount { get; set; } = null!;
         public virtual TransactionType TransactionType { get; set; } = null!;
