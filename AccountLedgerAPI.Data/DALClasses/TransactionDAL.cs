@@ -29,5 +29,19 @@ namespace AccountLedgerAPI.Data.DALClasses
                           Take(take).
                           ToListAsync();
         }
+
+        public async Task<List<Transaction>> GetTransactionsByDateRange(AccountLedgerContext dbContext, string accountNumber, DateTime fromDate, DateTime toDate)
+        {
+            return await (from transaction in dbContext.Transactions
+                          join applicationUserAccount in dbContext.ApplicationUserAccounts
+                          on transaction.ApplicationUserAccountId equals applicationUserAccount.ApplicationUserAccountId
+                          where applicationUserAccount.AccountNumber == accountNumber &&
+                                transaction.DeletionDate == FirmamentUtilities.Utilities.DateHelper.DefaultDate &&
+                                transaction.TransactionDate >= fromDate &&
+                                transaction.TransactionDate <= toDate
+                          select transaction).
+                          OrderByDescending(transaction => transaction.TransactionTicks).
+                          ToListAsync();
+        }
     }
 }

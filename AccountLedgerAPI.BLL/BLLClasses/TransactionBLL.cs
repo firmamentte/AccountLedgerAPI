@@ -7,7 +7,7 @@ using AccountLedgerAPI.Data.Entities;
 
 namespace AccountLedgerAPI.BLL.BLLClasses
 {
-    public class TransactionBLL
+    public class TransactionBLL: SharedBLL
     {
         private readonly ApplicationUserAccountDAL ApplicationUserAccountDAL;
         private readonly TransactionDAL TransactionDAL;
@@ -94,19 +94,6 @@ namespace AccountLedgerAPI.BLL.BLLClasses
             }
 
             await _dbContext.SaveChangesAsync();
-        }
-
-        private TransactionResp FillTransactionResp(Transaction transaction)
-        {
-            return new TransactionResp()
-            {
-                AccountBalance = transaction.AccountBalance,
-                TransactionDate = transaction.TransactionDate,
-                TransactionAmount = transaction.TransactionAmount,
-                TransactionName = transaction.TransactionName,
-                TransactionType = transaction.TransactionTypeName,
-                TransactionId = transaction.TransactionId
-            };
         }
 
         private TransactionPaginationResp FillTransactionPaginationResp(PaginationMeta paginationMeta, List<TransactionResp> transactionResps)

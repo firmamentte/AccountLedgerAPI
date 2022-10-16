@@ -1,19 +1,21 @@
 ﻿using AccountLedgerAPI.BLL.DataContract;
+using AccountLedgerAPI.Data;
 using AccountLedgerAPI.Data.DALClasses;
 using AccountLedgerAPI.Data.Entities;
-using System.Collections.Generic;
 
 namespace AccountLedgerAPI.BLL.BLLClasses
 {
-    public class ApplicationUserAccountBLL
+    public class ApplicationUserAccountBLL : SharedBLL
     {
         private readonly ApplicationUserDAL ApplicationUserDAL;
         private readonly ApplicationUserAccountDAL ApplicationUserAccountDAL;
+        private readonly TransactionDAL TransactionDAL;
 
         public ApplicationUserAccountBLL()
         {
             ApplicationUserDAL = new();
             ApplicationUserAccountDAL = new();
+            TransactionDAL = new();
         }
 
         public async Task<ApplicationUserAccountResp> CreateApplicationUserAccount(string accessToken, CreateApplicationUserAccountReq createApplicationUserAccountReq)
@@ -48,6 +50,24 @@ namespace AccountLedgerAPI.BLL.BLLClasses
             return applicationUserAccountResps;
         }
 
+        public async Task<AccountStatementResp> GetAccountStatement(string accountNumber, DateTime fromDate, DateTime toDate)
+        {
+            using AccountLedgerContext _dbContext = new();
+
+            ApplicationUserAccount _applicationUserAccount = await ApplicationUserAccountDAL.GetApplicationUserAccountByAccountNumber(_dbContext, accountNumber);
+
+            if (_applicationUserAccount is null)
+            {
+                throw new Exception("Invalid Account Number");
+            }
+
+            return FillAccountStatementResp(
+                 _applicationUserAccount,
+                 await TransactionDAL.GetTransactionsByDateRange(_dbContext, accountNumber, fromDate, toDate),
+                 fromDate,
+                 toDate);
+        }
+
         private async Task<string> CreateAccountNumber(AccountLedgerContext _dbContext)
         {
             Random _random = new();
@@ -71,6 +91,52 @@ namespace AccountLedgerAPI.BLL.BLLClasses
                 AccountBalance = applicationUserAccount.AccountBalance,
                 CreationDate = applicationUserAccount.CreationDate
             };
+        }
+
+        private AccountStatementResp FillAccountStatementResp(
+        ApplicationUserAccount applicationUserAccount, List<Transaction> transactions, DateTime fromDate, DateTime toDate)
+        {
+            transactions ??= new();
+
+            PersonalDetail _personalDetail = applicationUserAccount.PersonalDetail;
+
+            return new AccountStatementResp()
+            {
+                AccountName = applicationUserAccount.AccountName,
+                AccountNumber = applicationUserAccount.AccountNumber,
+                Contact = FillContactResp(_personalDetail.Contact),
+                FirstName = _personalDetail.FirstName,
+                LastName = _personalDetail.LastName,
+                Transactions = FillTransactionResps(transactions),
+                AccountStatementBalance = CalculateAccountStatementBalance(transactions),
+                FromDate = fromDate,
+                ToDate = toDate,
+            };
+        }
+
+        private ContactResp FillContactResp(Contact contact)
+        {
+            return new ContactResp()
+            {
+                AddressLine1 = contact.AddressLine1,
+                AddressLine2 = contact.AddressLine2,
+                CityOrTown = contact.CityOrTown,
+                EmailAddress = contact.EmailAddress,
+                MobileNumber = contact.MobileNumber,
+                PostalCode = contact.PostalCode,
+                StateOrProvince = contact.StateOrProvince,
+                SuburbOrTownship = contact.SuburbOrTownship
+            };
+        }
+
+        private decimal CalculateAccountStatementBalance(List<Transaction> transactions)
+        {
+            decimal _totalCredit = transactions.Where(transaction => transaction.TransactionTypeName == FirmamentUtilities.Utilities.GetEnumDescription(AccountLedgerAPIEnum.TransactionType.credit)).
+                                                Sum(transaction => transaction.TransactionAmount),
+                    _totalDebit = transactions.Where(transaction => transaction.TransactionTypeName == FirmamentUtilities.Utilities.GetEnumDescription(AccountLedgerAPIEnum.TransactionType.debit)).
+                                                Sum(transaction => transaction.TransactionAmount);
+
+            return _totalCredit + _totalDebit;
         }
     }
 }

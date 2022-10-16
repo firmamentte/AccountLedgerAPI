@@ -53,5 +53,28 @@ namespace AccountLedgerAPI.Controllers
 
             return Ok(await ApplicationUserAccountBLL.GetApplicationUserAccountsByCriteria(accountNumber, accountName));
         }
+
+        [Route("V1/GetAccountStatement")]
+        [HttpGet]
+        public async Task<ActionResult> GetAccountStatement([FromQuery] string accountNumber, [FromQuery] DateTime fromDate, DateTime toDate)
+        {
+            #region RequestValidation
+
+            ModelState.Clear();
+
+            if (string.IsNullOrWhiteSpace(accountNumber))
+            {
+                ModelState.AddModelError("AccountNumber", "AccountNumber required");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ApiErrorResp(ModelState));
+            }
+
+            #endregion
+
+            return Ok(await ApplicationUserAccountBLL.GetAccountStatement(accountNumber, fromDate, toDate));
+        }
     }
 }
