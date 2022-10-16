@@ -18,5 +18,5 @@ Entity FrameworkCore<br/>
 
 <b>Notes</b> <br/>
 Register, Authenticate endpoints responses are in the headers.<br/>
-To Authenticate add the ApplicationUserCode in the headers from Register endpoint.<br/>
+To hit the Authenticate endpoint add the ApplicationUserCode in the headers from Register endpoint.<br/>
 Keep the AccessToken after hitting the Authenticate endpoint, because it's going to be required in the headers for ApplicationUserAccount and Transaction endpoinds<br/>
