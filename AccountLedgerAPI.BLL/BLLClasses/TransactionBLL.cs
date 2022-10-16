@@ -51,6 +51,26 @@ namespace AccountLedgerAPI.BLL.BLLClasses
             return FillTransactionResp(_transaction);
         }
 
+        public async Task<TransactionPaginationResp> GetTransactionsByCriteria(string? transactionTypeName, int skip, int take)
+        {
+            using AccountLedgerContext _dbContext = new();
+
+            List<TransactionResp> _transactionResps = new();
+
+            foreach (var item in await TransactionDAL.GetTransactionsByCriteria(_dbContext, transactionTypeName, skip, take))
+            {
+                _transactionResps.Add(FillTransactionResp(item));
+            }
+
+            return FillTransactionPaginationResp(new PaginationMeta
+            {
+                OrderedBy = "Transaction Date Desc",
+                NextSkip = skip + take,
+                Taken = take
+            },
+            _transactionResps);
+        }
+
         public async Task DeleteTransaction(DeleteTransactionReq deleteTransactionReq)
         {
             using AccountLedgerContext _dbContext = new();
@@ -89,6 +109,15 @@ namespace AccountLedgerAPI.BLL.BLLClasses
             };
         }
 
+        private TransactionPaginationResp FillTransactionPaginationResp(PaginationMeta paginationMeta, List<TransactionResp> transactionResps)
+        {
+            transactionResps ??= new List<TransactionResp>();
 
+            return new TransactionPaginationResp()
+            {
+                Meta = paginationMeta,
+                Transactions = transactionResps
+            };
+        }
     }
 }

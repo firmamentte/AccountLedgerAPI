@@ -1,9 +1,8 @@
 ﻿using AccountLedgerAPI.BLL.BLLClasses;
 using AccountLedgerAPI.BLL.DataContract;
-using AccountLedgerAPI.Controllers.ControllerHelpers;
 using AccountLedgerAPI.Data;
 using AccountLedgerAPI.Filters;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AccountLedgerAPI.Controllers
@@ -91,6 +90,35 @@ namespace AccountLedgerAPI.Controllers
             return Ok(await TransactionBLL.CreateTransaction(createTransactionReq));
         }
 
+        [Route("V1/GetTransactionsByCriteria")]
+        [HttpGet]
+        public async Task<ActionResult> GetTransactionsByCriteria([FromQuery] string? transactionTypeName, [FromQuery] int skip = 0, [FromQuery] int take = 15)
+        {
+            #region RequestValidation
+
+            ModelState.Clear();
+
+            if (!string.IsNullOrWhiteSpace(transactionTypeName))
+            {
+                transactionTypeName = transactionTypeName.ToLower();
+
+                if (transactionTypeName != FirmamentUtilities.Utilities.GetEnumDescription(AccountLedgerAPIEnum.TransactionType.credit) &&
+                    transactionTypeName != FirmamentUtilities.Utilities.GetEnumDescription(AccountLedgerAPIEnum.TransactionType.debit))
+                {
+                    ModelState.AddModelError("TransactionTypeName", "Invalid Transaction Type Name");
+                }
+            }
+            
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ApiErrorResp(ModelState));
+            }
+
+            #endregion
+
+            return Ok(await TransactionBLL.GetTransactionsByCriteria(transactionTypeName, skip, take));
+        }
+
         [Route("V1/DeleteTransaction")]
         [HttpDelete]
         public async Task<ActionResult> DeleteTransaction([FromBody] DeleteTransactionReq deleteTransactionReq)
@@ -115,5 +143,7 @@ namespace AccountLedgerAPI.Controllers
 
             return Ok();
         }
+
+
     }
 }
